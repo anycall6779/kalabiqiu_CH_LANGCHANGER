@@ -99,8 +99,31 @@ function Add-KoFontCacheOverride {
     }
 
     $text = [System.IO.File]::ReadAllText($EngineIni)
-    if ($text -match '(?im)^\s*Slate\.Font\.CacheFontRawData(?:MaxSizeInMB)?\s*=') {
-        throw 'Engine.ini already has unmanaged Slate font-cache settings. Refusing to override them.'
+    $unmanagedFontSettings = [regex]::Matches(
+        $text,
+        '(?im)^\s*Slate\.Font\.(CacheFontRawData(?:MaxSizeInMB)?)\s*=\s*([^;\r\n]+)'
+    )
+    if ($unmanagedFontSettings.Count -gt 0) {
+        $rawData = $unmanagedFontSettings | Where-Object { $_.Groups[1].Value -ieq 'CacheFontRawData' }
+        $maxSize = $unmanagedFontSettings | Where-Object { $_.Groups[1].Value -ieq 'CacheFontRawDataMaxSizeInMB' }
+        $rawDataMatch = if (@($rawData).Count) { @($rawData)[-1] } else { $null }
+        $maxSizeMatch = if (@($maxSize).Count) { @($maxSize)[-1] } else { $null }
+        if ($rawDataMatch -and $rawDataMatch.Groups[2].Value.Trim() -ieq 'false') {
+            throw 'Engine.ini explicitly disables the font raw-data cache. Refusing to override it.'
+        }
+        if ($maxSizeMatch) {
+            $parsedSize = 0
+            if (![int]::TryParse($maxSizeMatch.Groups[2].Value.Trim(), [ref]$parsedSize) -or $parsedSize -lt 32) {
+                throw 'Engine.ini has an unmanaged font-cache size below 32 MB. Refusing to override it.'
+            }
+            $existingHash = Get-KoPatchSha256 -LiteralPath $EngineIni
+            return [pscustomobject]@{
+                Changed = $false
+                BeforeSha256 = $existingHash
+                AfterSha256 = $existingHash
+            }
+        }
+        throw 'Engine.ini has unsupported unmanaged Slate font-cache settings. Refusing to override them.'
     }
     $before = Get-KoPatchSha256 -LiteralPath $EngineIni
     Write-Utf8NoBomAtomic -LiteralPath $EngineIni -Text ($text + $script:FontCacheChunk)

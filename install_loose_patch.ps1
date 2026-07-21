@@ -7,7 +7,8 @@ $gameRoot = Get-CalabiyauGameRoot -StartPath $workRoot
 $source = Join-Path $workRoot 'optimized_patch_stage\PM\Content\Localization\Game\zh-Hans\Game.locres'
 $targetDir = Join-Path $gameRoot 'PM\Content\Localization\Game\zh-Hans'
 $target = Join-Path $targetDir 'Game.locres'
-$expectedHash = 'D437B9AA79152009DE29C505E66ED7A78ED626BF893D6953B3480E8AA54B690A'
+$expectedHash = '835B5159EB84AA90D0F79E1CC273313BC17FFEE9BEE900E887EF1DD35049FC2F'
+$previousPatchHash = 'D437B9AA79152009DE29C505E66ED7A78ED626BF893D6953B3480E8AA54B690A'
 $standardHash = '4952F688A36582A76B6A28248D4BA4C3A309C3B2E12ADD736597679835A7DD74'
 $blockedPak = Join-Path $gameRoot 'PM\Content\Paks\Game_Patch_WindowsNoEditor_999_P.pak'
 $engineIni = Get-CalabiyauEngineIniPath
@@ -16,8 +17,8 @@ $statePath = Join-Path $workRoot 'optimization_state.json'
 Assert-CalabiyauStopped
 
 $version = (Get-Content -LiteralPath (Join-Path $gameRoot 'Version.txt') -Raw).Trim()
-if ($version -ne '762941') {
-    throw "This one-time loose patch targets China version 762941; installed version is $version."
+if ($version -ne '775419') {
+    throw "This one-time loose patch targets China version 775419; installed version is $version."
 }
 if (Test-Path -LiteralPath $blockedPak) {
     throw "Remove the unsigned PAK first: $blockedPak"
@@ -33,7 +34,7 @@ if ($sourceHash -ne $expectedHash) {
 $targetWasPresent = Test-Path -LiteralPath $target
 $previousTargetHash = if ($targetWasPresent) { Get-KoPatchSha256 -LiteralPath $target } else { $null }
 if (Test-Path -LiteralPath $target) {
-    if ($previousTargetHash -notin @($expectedHash, $standardHash)) {
+    if ($previousTargetHash -notin @($expectedHash, $previousPatchHash, $standardHash)) {
         throw "Refusing to overwrite an unexpected loose file. SHA256: $previousTargetHash"
     }
 }
@@ -66,7 +67,7 @@ try {
         target_was_present = $targetWasPresent
         previous_target_sha256 = $previousTargetHash
         installed_target_sha256 = $installedHash
-        installed_entries = 50027
+        installed_entries = 51553
         installed_bytes = (Get-Item -LiteralPath $target).Length
         engine_ini = $engineIni
         engine_ini_was_present = $configWasPresent
@@ -95,7 +96,7 @@ try {
 
 Write-Host "Installed optimized loose localization: $target"
 Write-Host "SHA256: $installedHash"
-Write-Host 'Entries: 50027 (official Korean only; missing entries use native Chinese source fallback)'
+Write-Host 'Entries: 51553 (official Korean plus validated manual Korean; missing entries use native Chinese source fallback)'
 Write-Host 'Font raw-data cache: 32 MB'
 Write-Host 'Culture remains zh-Hans; Language=ko was not enabled.'
 Write-Host 'No PAK, SIG, executable, or ACE file was added or modified.'

@@ -1,17 +1,19 @@
 {
-  "name": "Calabiyau China official Korean optimized loose patch",
+  "name": "Calabiyau China Korean optimized loose patch",
   "target": "Calabiyau WeGame China",
-  "target_version": "762941",
+  "target_version": "775419",
   "global_source_version": "1.9.3.9",
   "global_source_internal_build": "763636",
   "delivery": "translated_only_sparse_loose_locres_plus_font_cache_override",
   "active_target": "PM/Content/Localization/Game/zh-Hans/Game.locres",
-  "locres_sha256": "D437B9AA79152009DE29C505E66ED7A78ED626BF893D6953B3480E8AA54B690A",
-  "locres_bytes": 4011717,
+  "locres_sha256": "835B5159EB84AA90D0F79E1CC273313BC17FFEE9BEE900E887EF1DD35049FC2F",
+  "locres_bytes": 4174348,
   "locres_version": 2,
-  "locres_namespaces": 596,
+  "locres_namespaces": 606,
   "official_korean_entries": 50027,
-  "omitted_native_chinese_fallback_entries": 13685,
+  "manual_korean_entries": 1526,
+  "total_korean_entries": 51553,
+  "unrepresentable_duplicate_identity_rows": 1,
   "font_cache_mb": 32,
   "culture": "zh-Hans",
   "language_override": false,
@@ -19,4 +21,3 @@
   "unsigned_pak_included": false,
   "install_remove_round_trip_verified": true
 }
-
