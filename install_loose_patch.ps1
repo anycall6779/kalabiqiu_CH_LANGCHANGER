@@ -7,9 +7,11 @@ $gameRoot = Get-CalabiyauGameRoot -StartPath $workRoot
 $source = Join-Path $workRoot 'optimized_patch_stage\PM\Content\Localization\Game\zh-Hans\Game.locres'
 $targetDir = Join-Path $gameRoot 'PM\Content\Localization\Game\zh-Hans'
 $target = Join-Path $targetDir 'Game.locres'
-$expectedHash = '1DC783691F9CC8EF101E9695650E8BA17580B7D2281CA7B069198E85EC79A728'
+$expectedHash = 'D05195A4AE0297444DC784190E881064E58CD977022482952E1D37184AC6DC6F'
 $allowedExistingHashes = @(
     $expectedHash,
+    '2F28A744D7E52575242548A3BF3C5F777FC2C9BCFA36B82B892272BFAD634740',
+    '1DC783691F9CC8EF101E9695650E8BA17580B7D2281CA7B069198E85EC79A728',
     '835B5159EB84AA90D0F79E1CC273313BC17FFEE9BEE900E887EF1DD35049FC2F',
     'D437B9AA79152009DE29C505E66ED7A78ED626BF893D6953B3480E8AA54B690A',
     '4952F688A36582A76B6A28248D4BA4C3A309C3B2E12ADD736597679835A7DD74'
@@ -71,7 +73,7 @@ try {
         target_was_present = $targetWasPresent
         previous_target_sha256 = $previousTargetHash
         installed_target_sha256 = $installedHash
-        installed_entries = 61629
+        installed_entries = 61885
         installed_bytes = (Get-Item -LiteralPath $target).Length
         engine_ini = $engineIni
         engine_ini_was_present = $configWasPresent
@@ -100,7 +102,7 @@ try {
 
 Write-Host "Installed optimized loose localization: $target"
 Write-Host "SHA256: $installedHash"
-Write-Host 'Entries: 61629 (official Korean plus validated manual Korean; four skipped rows use native Chinese source fallback)'
+Write-Host 'Entries: 61885 (official Korean plus all validated manual Korean rows)'
 Write-Host 'Font raw-data cache: 32 MB'
 Write-Host 'Culture remains zh-Hans; Language=ko was not enabled.'
 Write-Host 'No PAK, SIG, executable, or ACE file was added or modified.'
