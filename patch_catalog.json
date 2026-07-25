@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "auto_detect_china_version": true,
+  "version_source": "Version.txt",
+  "supported_versions": [
+    "775419",
+    "777031"
+  ],
+  "unsupported_version_behavior": "build_with_safe_previous_translation_reuse_when_local_tools_and_key_exist"
+}

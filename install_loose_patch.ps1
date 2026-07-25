@@ -2,14 +2,20 @@ $ErrorActionPreference = 'Stop'
 
 $workRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $workRoot 'optimization_common.ps1')
+. (Join-Path $workRoot 'version_patch_common.ps1')
 $gameRoot = Get-CalabiyauGameRoot -StartPath $workRoot
 
-$source = Join-Path $workRoot 'optimized_patch_stage\PM\Content\Localization\Game\zh-Hans\Game.locres'
+$version = Get-CalabiyauInstalledVersion -GameRoot $gameRoot
+$package = Get-KoPatchManifestForVersion -WorkRoot $workRoot -Version $version -AllowMissing
+if ($null -eq $package) {
+    throw "Detected China version $version, but no matching patch package exists. The older patch will not be installed. Run .\detect_patch_version.ps1 and build a package under versions\$version."
+}
+
+$source = $package.PatchPath
 $targetDir = Join-Path $gameRoot 'PM\Content\Localization\Game\zh-Hans'
 $target = Join-Path $targetDir 'Game.locres'
-$expectedHash = 'D05195A4AE0297444DC784190E881064E58CD977022482952E1D37184AC6DC6F'
-$allowedExistingHashes = @(
-    $expectedHash,
+$expectedHash = $package.Sha256
+$allowedExistingHashes = @(Get-KoPatchKnownHashes -WorkRoot $workRoot) + @(
     '2F28A744D7E52575242548A3BF3C5F777FC2C9BCFA36B82B892272BFAD634740',
     '1DC783691F9CC8EF101E9695650E8BA17580B7D2281CA7B069198E85EC79A728',
     '835B5159EB84AA90D0F79E1CC273313BC17FFEE9BEE900E887EF1DD35049FC2F',
@@ -19,18 +25,23 @@ $allowedExistingHashes = @(
 $blockedPak = Join-Path $gameRoot 'PM\Content\Paks\Game_Patch_WindowsNoEditor_999_P.pak'
 $engineIni = Get-CalabiyauEngineIniPath
 $statePath = Join-Path $workRoot 'optimization_state.json'
+if (Test-Path -LiteralPath $statePath -PathType Leaf) {
+    try {
+        $previousState = [System.IO.File]::ReadAllText($statePath) | ConvertFrom-Json
+        if ([string]$previousState.target -eq $target -and
+            [string]$previousState.installed_target_sha256 -match '^[0-9A-Fa-f]{64}$') {
+            $allowedExistingHashes += ([string]$previousState.installed_target_sha256).ToUpperInvariant()
+        }
+    } catch {
+        throw "Invalid optimization_state.json. Refusing automatic replacement: $($_.Exception.Message)"
+    }
+}
+$allowedExistingHashes = @($allowedExistingHashes | Select-Object -Unique)
 
 Assert-CalabiyauStopped
 
-$version = (Get-Content -LiteralPath (Join-Path $gameRoot 'Version.txt') -Raw).Trim()
-if ($version -ne '775419') {
-    throw "This one-time loose patch targets China version 775419; installed version is $version."
-}
 if (Test-Path -LiteralPath $blockedPak) {
     throw "Remove the unsigned PAK first: $blockedPak"
-}
-if (!(Test-Path -LiteralPath $source)) {
-    throw "Optimized Game.locres is missing: $source"
 }
 $sourceHash = Get-KoPatchSha256 -LiteralPath $source
 if ($sourceHash -ne $expectedHash) {
@@ -73,8 +84,9 @@ try {
         target_was_present = $targetWasPresent
         previous_target_sha256 = $previousTargetHash
         installed_target_sha256 = $installedHash
-        installed_entries = 61885
+        installed_entries = [long]$package.Manifest.total_korean_entries
         installed_bytes = (Get-Item -LiteralPath $target).Length
+        package_manifest = $package.ManifestPath
         engine_ini = $engineIni
         engine_ini_was_present = $configWasPresent
         engine_ini_before_sha256 = $configResult.BeforeSha256
@@ -102,7 +114,8 @@ try {
 
 Write-Host "Installed optimized loose localization: $target"
 Write-Host "SHA256: $installedHash"
-Write-Host 'Entries: 61885 (official Korean plus all validated manual Korean rows)'
+Write-Host "China version: $version (automatically detected)"
+Write-Host "Verified Korean entries selected for this version: $($package.Manifest.total_korean_entries)"
 Write-Host 'Font raw-data cache: 32 MB'
 Write-Host 'Culture remains zh-Hans; Language=ko was not enabled.'
 Write-Host 'No PAK, SIG, executable, or ACE file was added or modified.'

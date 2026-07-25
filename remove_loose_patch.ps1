@@ -2,11 +2,12 @@ $ErrorActionPreference = 'Stop'
 
 $workRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $workRoot 'optimization_common.ps1')
+. (Join-Path $workRoot 'version_patch_common.ps1')
 $gameRoot = Get-CalabiyauGameRoot -StartPath $workRoot
 
 $localizationRoot = Join-Path $gameRoot 'PM\Content\Localization'
 $target = Join-Path $localizationRoot 'Game\zh-Hans\Game.locres'
-$allowedHashes = @(
+$legacyAllowedHashes = @(
     '4952F688A36582A76B6A28248D4BA4C3A309C3B2E12ADD736597679835A7DD74',
     'D437B9AA79152009DE29C505E66ED7A78ED626BF893D6953B3480E8AA54B690A',
     '835B5159EB84AA90D0F79E1CC273313BC17FFEE9BEE900E887EF1DD35049FC2F',
@@ -14,6 +15,23 @@ $allowedHashes = @(
     '2F28A744D7E52575242548A3BF3C5F777FC2C9BCFA36B82B892272BFAD634740',
     'D05195A4AE0297444DC784190E881064E58CD977022482952E1D37184AC6DC6F'
 )
+$statePath = Join-Path $workRoot 'optimization_state.json'
+$stateInstalledHash = $null
+if (Test-Path -LiteralPath $statePath -PathType Leaf) {
+    try {
+        $state = [System.IO.File]::ReadAllText($statePath) | ConvertFrom-Json
+        if ([string]$state.target -eq $target -and [string]$state.installed_target_sha256 -match '^[0-9A-Fa-f]{64}$') {
+            $stateInstalledHash = ([string]$state.installed_target_sha256).ToUpperInvariant()
+        }
+    } catch {
+        throw "Invalid optimization_state.json. Refusing automatic removal: $($_.Exception.Message)"
+    }
+}
+$allowedHashes = @($legacyAllowedHashes) + @(Get-KoPatchKnownHashes -WorkRoot $workRoot)
+if ($stateInstalledHash) {
+    $allowedHashes += $stateInstalledHash
+}
+$allowedHashes = @($allowedHashes | Select-Object -Unique)
 $engineIni = Get-CalabiyauEngineIniPath
 
 Assert-CalabiyauStopped

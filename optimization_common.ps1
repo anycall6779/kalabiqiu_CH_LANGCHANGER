@@ -30,11 +30,15 @@ function Get-CalabiyauGameRoot {
 }
 
 function Assert-CalabiyauStopped {
-    $running = @(Get-Process -Name 'Calabiyau-Win64-Shipping', 'Calabiyau' -ErrorAction SilentlyContinue)
+    $running = @(Get-CalabiyauRunningProcesses)
     if ($running.Count -gt 0) {
         $details = ($running | ForEach-Object { "$($_.ProcessName) PID=$($_.Id)" }) -join ', '
         throw "Close Calabiyau before changing localization or font settings: $details"
     }
+}
+
+function Get-CalabiyauRunningProcesses {
+    return @(Get-Process -Name 'Calabiyau-Win64-Shipping', 'Calabiyau', 'Strinova-Win64-Shipping', 'Strinova' -ErrorAction SilentlyContinue)
 }
 
 function Get-CalabiyauEngineIniPath {

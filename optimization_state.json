@@ -1,0 +1,21 @@
+﻿{
+    "applied_at":  "2026-07-25T13:49:15.1198717+09:00",
+    "target_version":  "777031",
+    "delivery":  "translated_only_sparse_loose_locres",
+    "target":  "F:\\WeGameApps\\rail_apps\\Calabiyau(2001755)\\PM\\Content\\Localization\\Game\\zh-Hans\\Game.locres",
+    "target_was_present":  true,
+    "previous_target_sha256":  "8EB18AE24E8D6A16FE9EEFC0C4F268F9BB7D3BC84C70C4C57DF98A84C21C1554",
+    "installed_target_sha256":  "8EB18AE24E8D6A16FE9EEFC0C4F268F9BB7D3BC84C70C4C57DF98A84C21C1554",
+    "installed_entries":  63188,
+    "installed_bytes":  5889399,
+    "package_manifest":  "F:\\WeGameApps\\rail_apps\\Calabiyau(2001755)\\_ko_patch_work\\upload\\versions\\777031\\manifest.json",
+    "engine_ini":  "C:\\Users\\USER\\AppData\\Local\\Calabiyau\\Saved\\Config\\WindowsNoEditor\\Engine.ini",
+    "engine_ini_was_present":  true,
+    "engine_ini_before_sha256":  "D2B84F1978C1A818D87733DFC513A79CB63A4DA6C6F96A23964EE9CDC87001C4",
+    "engine_ini_after_sha256":  "D2B84F1978C1A818D87733DFC513A79CB63A4DA6C6F96A23964EE9CDC87001C4",
+    "font_cache_mb":  32,
+    "language":  "zh-Hans",
+    "locale":  "unchanged",
+    "backup_directory":  "F:\\WeGameApps\\rail_apps\\Calabiyau(2001755)\\_ko_patch_work\\upload\\optimization_backups\\20260725_134914",
+    "pak_or_sig_modified":  false
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "target_version": "775419",
+  "locres_relative_path": "Game.locres",
+  "locres_sha256": "D05195A4AE0297444DC784190E881064E58CD977022482952E1D37184AC6DC6F",
+  "locres_bytes": 5748169,
+  "locres_version": 2,
+  "locres_namespaces": 638,
+  "official_korean_entries": 50279,
+  "manual_korean_entries": 11606,
+  "total_korean_entries": 61885,
+  "culture": "zh-Hans",
+  "language_override": false,
+  "delivery": "translated_only_sparse_loose_locres_plus_font_cache_override",
+  "pak_or_sig_modified": false
+}
