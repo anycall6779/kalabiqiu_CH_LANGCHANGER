@@ -2,6 +2,15 @@
 param([string]$GameRoot='')
 $ErrorActionPreference='Stop'; Set-StrictMode -Version Latest
 $packageRoot=$PSScriptRoot
+function Get-Sha256([string]$path){
+  if(!(Test-Path -LiteralPath $path -PathType Leaf)){throw "File not found: $path"}
+  $sha=[System.Security.Cryptography.SHA256]::Create()
+  try{
+    $stream=[System.IO.File]::OpenRead($path)
+    try{return ([BitConverter]::ToString($sha.ComputeHash($stream))).Replace('-','')}
+    finally{$stream.Dispose()}
+  }finally{$sha.Dispose()}
+}
 function Resolve-GameRoot([string]$packageRoot){
   $p=(Resolve-Path $packageRoot).Path
   for($i=0;$i -lt 6;$i++){
@@ -23,17 +32,18 @@ $entry=@($catalog.entries)|Where-Object {$_.china_version -eq $version}|Select-O
 if(!$entry){$known=(@($catalog.entries)|ForEach-Object {$_.china_version}) -join ', ';throw "No prepared localization for detected version $version. Known prepared versions: $known. Refusing to guess or overwrite."}
 $payload=Join-Path $packageRoot ($entry.payload -replace '/','\');$locres=Join-Path $GameRoot 'PM\Content\Localization\Game\zh-Hans\Game.locres'
 if(!(Test-Path $payload)){throw "Payload missing: $payload"}
-if((Get-FileHash $payload -Algorithm SHA256).Hash.ToUpperInvariant() -ne $entry.sha256.ToUpperInvariant()){throw 'Payload SHA-256 mismatch.'}
+if((Get-Sha256 $payload).ToUpperInvariant() -ne $entry.sha256.ToUpperInvariant()){throw 'Payload SHA-256 mismatch.'}
 if(Get-Process|Where-Object {$_.ProcessName -match '^(Strinova|Calabiyau|ACE|ACE_.*)$'}){throw 'Game or ACE process is running; close it first.'}
 $managed=Join-Path $GameRoot "_ko_patch_work\backups\managed_$version";New-Item -ItemType Directory -Force $managed|Out-Null
 if(Test-Path $locres){
-  $old=(Get-FileHash $locres -Algorithm SHA256).Hash.ToUpperInvariant()
+  $old=(Get-Sha256 $locres).ToUpperInvariant()
   if($old -ne $entry.sha256.ToUpperInvariant() -and !(Test-Path (Join-Path $managed 'Game.locres.previous'))){Copy-Item $locres (Join-Path $managed 'Game.locres.previous')}
   Set-Content (Join-Path $managed 'previous.sha256') $old -Encoding ascii
 }
+$locresDir=Split-Path $locres -Parent;New-Item -ItemType Directory -Force $locresDir|Out-Null
 $tmp="$locres.$PID.tmp";Copy-Item $payload $tmp -Force
-if((Get-FileHash $tmp -Algorithm SHA256).Hash.ToUpperInvariant() -ne $entry.sha256.ToUpperInvariant()){Remove-Item $tmp -Force;throw 'Temporary copy hash mismatch.'}
+if((Get-Sha256 $tmp).ToUpperInvariant() -ne $entry.sha256.ToUpperInvariant()){Remove-Item $tmp -Force;throw 'Temporary copy hash mismatch.'}
 Move-Item $tmp $locres -Force
-if((Get-FileHash $locres -Algorithm SHA256).Hash.ToUpperInvariant() -ne $entry.sha256.ToUpperInvariant()){throw 'Installed hash verification failed.'}
+if((Get-Sha256 $locres).ToUpperInvariant() -ne $entry.sha256.ToUpperInvariant()){throw 'Installed hash verification failed.'}
 Set-Content (Join-Path $managed 'installed.sha256') $entry.sha256 -Encoding ascii
 Write-Host "Installed prepared localization for detected version $version"

@@ -3,18 +3,14 @@
   "target": "Calabiyau WeGame zh-Hans loose localization",
   "entries": [
     {
-      "china_version": "793962",
-      "payload": "versions/793962/Game.locres",
-      "sha256": "94C79B1167765018FAB972FA9243886B52FDEAB8938348DCA48A6BD0AC20EE92",
-      "source_global_version": "1.10.6.10",
-      "entries": 65591,
-      "namespaces": 654,
-      "nora_fill": "version Nora_V3/versions/777031/Game.locres",
-      "nora_filled_from_notextfound": 11407,
-      "unmatched_notextfound": 3,
-      "source_hash_policy": "exact Namespace+Key+source_hash only",
-      "translated_after_nora": 146,
-      "unresolved_no_china_source": 3
+      "china_version": "808103",
+      "payload": "versions/808103/Game.locres",
+      "sha256": "E515B7BF7D840B527D502B0808295D0C558410E859429F17027A2B085F573945",
+      "source_global_version": "1.11.1.3",
+      "entries": 66194,
+      "source_hash_policy": "latest Chinese Namespace+Key+source_hash",
+      "remaining_chinese": 0,
+      "remaining_notextfound": 0
     }
   ]
 }
